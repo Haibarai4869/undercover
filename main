@@ -1,0 +1,71 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('psm.csv')
+#print(df.shape)
+#print(df.columns)
+#print(df.head())
+#print(df.describe())
+'''
+print(df
+      .unstack()
+      .reset_index())
+
+print(df
+      .unstack()
+      .reset_index()
+      .groupby(['level_0',0])
+      .size())
+
+print(df
+      .unstack()
+      .reset_index()
+      .rename(columns={'level_0': 'label', 0: 'price'})
+      .groupby(['label','price'])
+      .size()
+      .reset_index()
+      .rename(columns={0: 'freq'})
+      )
+'''
+df1 = (
+      df
+      .unstack()
+      .reset_index()
+      .rename(columns={'level_0': 'label', 0: 'price'})
+      .groupby(['label','price'])
+      .size()
+      .reset_index()
+      .rename(columns={0: 'freq'})
+)
+
+#print(df1.groupby(['label'])['freq'].sum())
+df1['sum'] = df1.groupby(['label'])['freq'].transform('sum')
+df1['cumsum'] = df1.groupby(['label'])['freq'].cumsum()
+df1['percentage'] = df1['cumsum'] / df1['sum'] * 100
+#print(df1)
+
+df2 = df1.pivot_table('percentage', 'price', 'label')
+#print(df2)
+
+#df3 = df2.interpolate().fillna(0)
+df3 = df2.ffill().fillna(0)
+df3['Too Cheap'] = 100 - df3['Too Cheap']
+df3['Cheap'] = 100 - df3['Cheap']
+
+df3.plot()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
